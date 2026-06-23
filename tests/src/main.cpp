@@ -96,17 +96,42 @@ int main(int argc, char** argv) {
     // I'm just allocating an absurdly high amount here to be safe
     void* workMem = malloc(0x10000000);
 
-    const std::filesystem::path dirPath = ParseInput(argc, argv, 0);
+    const std::filesystem::path inputPath = ParseInput(argc, argv, 0);
     const std::filesystem::path outputPath = ParseInput(argc, argv, 1);
 
-    for (const auto& entry : std::filesystem::recursive_directory_iterator(dirPath)) {
-        if (entry.path().extension() == ".mc") {
-            if (!Decompress(entry.path().string(), workMem, outputPath / std::filesystem::relative(entry.path().parent_path(), dirPath)))
-                std::cout << "Failed to decompress " << entry.path().string() << "\n";
-        } else if (entry.path().extension() == ".chunk") {
-            if (!DecompressCave(entry.path().string(), workMem, outputPath / std::filesystem::relative(entry.path().parent_path(), dirPath)))
-                std::cout << "Failed to decompress " << entry.path().string() << "\n";
+    if (inputPath.empty() || outputPath.empty()) {
+        std::cout << "Usage: mesh_codec <input_path> <output_dir>\n";
+        free(workMem);
+        return 1;
+    }
+
+    if (std::filesystem::is_regular_file(inputPath)) {
+        const auto ext = inputPath.extension();
+        if (ext == ".mc") {
+            if (!Decompress(inputPath, workMem, outputPath))
+                std::cout << "Failed to decompress " << inputPath.string() << "\n";
+        } else if (ext == ".chunk") {
+            if (!DecompressCave(inputPath, workMem, outputPath))
+                std::cout << "Failed to decompress " << inputPath.string() << "\n";
+        } else {
+            std::cout << "Unsupported file extension: " << ext.string() << "\n";
+            free(workMem);
+            return 1;
         }
+    } else if (std::filesystem::is_directory(inputPath)) {
+        for (const auto& entry : std::filesystem::recursive_directory_iterator(inputPath)) {
+            if (entry.path().extension() == ".mc") {
+                if (!Decompress(entry.path().string(), workMem, outputPath / std::filesystem::relative(entry.path().parent_path(), inputPath)))
+                    std::cout << "Failed to decompress " << entry.path().string() << "\n";
+            } else if (entry.path().extension() == ".chunk") {
+                if (!DecompressCave(entry.path().string(), workMem, outputPath / std::filesystem::relative(entry.path().parent_path(), inputPath)))
+                    std::cout << "Failed to decompress " << entry.path().string() << "\n";
+            }
+        }
+    } else {
+        std::cout << "Input path does not exist or is not a file/directory: " << inputPath.string() << "\n";
+        free(workMem);
+        return 1;
     }
 
     free(workMem);
