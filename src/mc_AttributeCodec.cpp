@@ -3,6 +3,7 @@
 
 #include "mc_Float.h"
 
+#include <algorithm> // std::max
 #include <cmath> // std::sqrt
 #include <cstring> // std::memcpy
 #include <type_traits> // std::is_same_v

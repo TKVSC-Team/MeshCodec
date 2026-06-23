@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     const std::filesystem::path outputPath = ParseInput(argc, argv, 1);
 
     if (inputPath.empty() || outputPath.empty()) {
-        std::cout << "Usage: mesh_codec <input_path> <output_dir>\n";
+        std::cout << "Usage: mc_decompress <input_path> <output_dir>\n";
         free(workMem);
         return 1;
     }

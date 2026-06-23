@@ -68,8 +68,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mc_test-${{ matrix.name }}
+          name: mc_decompress-${{ matrix.name }}
           path: |
-            build/tests/mc_test
-            build/tests/mc_test.exe
+            build/tests/mc_decompress
+            build/tests/mc_decompress.exe
           if-no-files-found: error
