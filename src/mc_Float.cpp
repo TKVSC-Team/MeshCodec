@@ -12,11 +12,13 @@ u32 InitFPUState() {
 #if defined(__x86_64__) || defined(_M_X64)
     u32 csr = _mm_getcsr();
 #elif defined(__aarch64__) || defined(_M_ARM64)
-#if defined(__GNUC__) && !defined(__clang__)
-    u32 csr = __builtin_aarch64_get_fpcr();
-#else
     u32 csr;
-    __asm__("mrs %w0, fpcr" : "=r"(csr));
+#if defined(__GNUC__) && !defined(__clang__)
+    csr = __builtin_aarch64_get_fpcr();
+#else
+    u64 csr64;
+    __asm__("mrs %0, fpcr" : "=r"(csr64));
+    csr = static_cast<u32>(csr64);
 #endif
 #else
     u32 csr = 0;
@@ -36,7 +38,8 @@ u32 InitFPUState() {
 #if defined(__GNUC__) && !defined(__clang__)
     __builtin_aarch64_set_fpcr(newCsr);
 #else
-    __asm__("msr fpcr, %w0" :: "r"(newCsr));
+    const u64 newCsr64 = newCsr;
+    __asm__("msr fpcr, %0" :: "r"(newCsr64));
 #endif
 #endif
     return csr;
@@ -49,7 +52,8 @@ void SetFPUState(u32 state) {
 #if defined(__GNUC__) && !defined(__clang__)
     __builtin_aarch64_set_fpcr(state);
 #else
-    __asm__("msr fpcr, %w0" :: "r"(state));
+    const u64 state64 = state;
+    __asm__("msr fpcr, %0" :: "r"(state64));
 #endif
 #endif
 }
