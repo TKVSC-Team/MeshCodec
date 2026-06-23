@@ -59,8 +59,10 @@ add_library(MeshCodec
 if (MSVC)
     target_compile_options(MeshCodec PRIVATE /W4 /wd4244 /wd4127 /Zc:__cplusplus)
     target_include_directories(MeshCodec SYSTEM PUBLIC lib/float16)
-else()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     target_compile_options(MeshCodec PRIVATE -Wall -Wextra -fno-plt)
+else()
+    target_compile_options(MeshCodec PRIVATE -Wall -Wextra)
 endif()
 
 target_include_directories(MeshCodec PRIVATE lib/zstd/lib)

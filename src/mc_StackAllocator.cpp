@@ -38,7 +38,7 @@ void* StackAllocator::Alloc(size_t size, s64 alignment) {
     reinterpret_cast<MemBlock*>(ptr)->GetBlockInfo()->data = (start - mLastAllocationStart) | (start - mMemoryOffset) << 0x1f;
     mMemoryOffset = end;
     mLastAllocationStart = start;
-    mPeakMemoryUsage = std::max(mPeakMemoryUsage, end);
+    mPeakMemoryUsage = std::max(mPeakMemoryUsage, static_cast<size_t>(end));
 
     return ptr;
 }

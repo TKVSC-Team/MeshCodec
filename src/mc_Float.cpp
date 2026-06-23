@@ -11,14 +11,15 @@ namespace mc::detail {
 u32 InitFPUState() {
 #if defined(__x86_64__) || defined(_M_X64)
     u32 csr = _mm_getcsr();
-#else
-#if defined(__clang__) || !defined(__GNUC__)  
-    u32 csr;
-    __asm__("mrs %0, fpcr" : "=r"(csr));
-#else
-    // only gcc appears to have an intrinsic for this
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__GNUC__)
     u32 csr = __builtin_aarch64_get_fpcr();
+#else
+    u32 csr;
+    __asm__("mrs %w0, fpcr" : "=r"(csr));
 #endif
+#else
+    u32 csr = 0;
 #endif
 #if defined(__x86_64__) || defined(_M_X64)
     u32 newCsr = csr & 0xffff9fff; // rounding mode nearest
@@ -27,15 +28,15 @@ u32 InitFPUState() {
     u32 newCsr = csr & 0xfc3fffff; // rounding mode nearest
     newCsr |= 0x3000000; // nan propagation and flush denormals
 #else
-    // idk I'm lazy
+    u32 newCsr = csr;
 #endif
 #if defined(__x86_64__) || defined(_M_X64)
     _mm_setcsr(newCsr);
-#else
-#if defined(__clang__) || !defined(__GNUC__)
-    __asm__("msr fpcr, %0" :: "r"(newCsr));
-#else
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__GNUC__)
     __builtin_aarch64_set_fpcr(newCsr);
+#else
+    __asm__("msr fpcr, %w0" :: "r"(newCsr));
 #endif
 #endif
     return csr;
@@ -44,11 +45,11 @@ u32 InitFPUState() {
 void SetFPUState(u32 state) {
 #if defined(__x86_64__) || defined(_M_X64)
     _mm_setcsr(state);
-#else
-#if defined(__clang__) || !defined(__GNUC__)
-    __asm__("msr fpcr, %0" :: "r"(state));
-#else
+#elif defined(__aarch64__) || defined(_M_ARM64)
+#if defined(__GNUC__)
     __builtin_aarch64_set_fpcr(state);
+#else
+    __asm__("msr fpcr, %w0" :: "r"(state));
 #endif
 #endif
 }
