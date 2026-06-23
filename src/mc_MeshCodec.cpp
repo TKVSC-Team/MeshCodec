@@ -2,6 +2,8 @@
 
 #include "mc_Zstd.h"
 
+#include <algorithm> // std::max
+
 namespace mc {
 
 // nn::util::BinaryFileHeader

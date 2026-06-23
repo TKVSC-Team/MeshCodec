@@ -5,6 +5,8 @@
 #include "mc_Zstd.h"
 #include "mc_IndexCodec.h"
 
+#include <algorithm> // std::max
+
 namespace mc {
 
 void IndexDecompressor::Initialize(u32, ZSTD_DCtx* dctx, StackAllocator* allocator) {

@@ -5,6 +5,7 @@
 
 #include "mc_IndexCodec.h"
 
+#include <algorithm> // std::min, std::max
 #include <cstring> // std::memset
 
 namespace mc {
